@@ -1,0 +1,34 @@
+body {
+    background: #dbe3de;
+    background: -webkit-linear-gradient(to left, #ffffff, #dbe3de);
+    background: linear-gradient(to left, #ffffff, #dbe3de);
+}
+
+nav.my-navbar {
+    background-color: #dbe3de;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: black;
+}
+
+footer.my-footer {
+    color: white;
+    background-color: black;
+}
+
+div.my-container {
+    margin-top: 10px;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 75px;
+}
+
+div.my-row {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+p.my-text {
+    text-align: justify;
+}
