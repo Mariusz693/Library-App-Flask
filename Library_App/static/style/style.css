@@ -47,6 +47,7 @@ div.my-row-header a {
     text-decoration: none;
     font-weight: bold;
     font-size: 1.1rem;
+    margin-left: 10px;
 }
 
 div.my-row-input label {
@@ -94,4 +95,33 @@ table.my-table td {
 table.my-table a {
     text-decoration: none;
     font-weight: bold;
+}
+
+form.my-form-search input {
+    max-width: 300px;
+    height: 32px;
+    padding: 7.5px;
+    border: 1px solid rgba(128,128,128,0.5);
+    background-color: white;
+    border-radius: 5px;
+    outline: none;
+}
+
+form.my-form-search button {
+    background: transparent;
+    border: none;
+    outline: none;
+    margin-left: -33px;
+}
+
+form.my-form-search button img {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+}
+
+a.my-link-margin {
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 15px;
 }

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_flash %}
+{% block title %} Profil Użytkownika {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Profil Użytkownika</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.users') }}">&#11013;&nbsp;Użytkownicy</a>
+                </div>
+            </div>
+            {{ render_flash(get_flashed_messages(with_categories=true)) }}
+            <div class="row my-row">
+                <div class="col">
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Imię:</div>
+                        <div class="col-8">{{ user.first_name }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Adres email:</div>
+                        <div class="col-8">{{ user.email }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Data rejestracji:</div>
+                        <div class="col-8">
+                            {{ user.date_of_created.strftime('%d.%m.%Y, godz. %H:%M:%S') }}
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Status:</div>
+                        <div class="col-8">
+                            {{ user.status.value }}
+                            <a href="{{ url_for('auth.user_status', user_id=user.id) }}"
+                                class="my-link-margin">Zmień&nbsp;&#10145;</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Nazwisko:</div>
+                        <div class="col-8">{{ user.last_name }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Numer telefonu:</div>
+                        <div class="col-8">
+                            {% if user.phone_number %}
+                            (+48) {{ user.phone_number }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Ostatnie logowanie:</div>
+                        <div class="col-8">
+                            {% if user.date_of_last_login %} 
+                            {{ user.date_of_last_login.strftime('%d.%m.%Y, godz. %H:%M:%S') }} 
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if request.args.returned == 'True' %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Historia wypożyczeń</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.user_details', user_id=user.id) }}">Aktualnie&nbsp;&#10145;</a>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-5">Tytuł</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                                <th class="col-3 text-center">Data</br>Zwrotu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-5">
+                                    <a href="#">
+                                        {{ item.book }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_returned.strftime('%d.%m.%Y') }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>            
+            </div>
+            {% else %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Historia wypożyczeń</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.user_details', user_id=user.id) }}?returned=True">
+                        Zwrócone&nbsp;&#10145;
+                    </a>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-5">Tytuł</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                                <th class="col-3 text-center">Data</br>Zwrotu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-5">
+                                    <a href="#">
+                                        {{ item.book }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td class="col-3 text-center">
+                                    <a href="#">
+                                        Dodaj&nbsp;&#10145;
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>            
+            </div>
+            {% endif %}
+        </div>                
+    </div>
+{% endblock content %}

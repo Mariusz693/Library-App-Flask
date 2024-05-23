@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %} Użytkownicy {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            {% if request.args.admin == 'True' %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Administratorzy</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.users') }}">&#11013;&nbsp;Użytkownicy</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>
+                        Użytkownicy{% if request.args.search %} - "{{ request.args.search }}"{% endif %}
+                    </h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <form method="GET" class="my-form-search">
+                        <input type="search" name="search" placeholder="Szukaj"
+                            {% if request.args.search %} value="{{ request.args.search }}" {% endif %}>
+                        <button type="submit">
+                            <img src="{{ url_for('static', filename='images/search.png') }}" alt="Szukaj">
+                        </button>
+                        <a href="{{ url_for('auth.users') }}?admin=True">Admini&nbsp;&#10145;</a>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-6">Imię i Nazwisko</th>
+                                <th class="col-5 text-center">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users_list %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-6">
+                                    <a href="{{ url_for('auth.user_details', user_id=user.id) }}">{{ user }}</a>
+                                </td>
+                                <td class="col-5 text-center">{{ user.email }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>         
+    </div>
+{% endblock content %}

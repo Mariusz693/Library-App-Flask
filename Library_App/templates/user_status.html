@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %} Zmiana uprawnień {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Zmiana uprawnień</h5>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-8 col-10">
+                    <form method="POST">
+                        <div class="row my-row">
+                            <div class="col my-text-bold">
+                                Użytkownik:
+                            </div>
+                        </div>
+                        <div class="row my-row">
+                            <div class="col d-flex justify-content-end my-text-size">
+                                {{ user }}
+                            </div>
+                        </div>
+                        <div class="row my-row">
+                            <div class="col my-text-bold">
+                                Nowy Status:
+                            </div>
+                        </div>
+                        <div class="row my-row">
+                            <div class="col d-flex justify-content-end my-text-size">
+                                {{ status.value }}
+                            </div>
+                        </div>
+                        <div class="form-group my-row-button">
+                            <div class="col d-flex justify-content-end">
+                                <a href="{{ url_for('auth.user_details', user_id=user.id) }}"
+                                    class="btn btn-danger">Anuluj</a>
+                                <input class="btn btn-success" id="submit" name="submit"
+                                    type="submit" value="Potwierdź">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-8 col-10">
+                    <img class="rounded mx-auto d-block img-thumbnail" 
+                    src="{{ url_for('static', filename='images/user_status.jpg') }}" alt="User status photo">
+                </div>
+            </div>
+        </div>                
+    </div>
+{% endblock content %}

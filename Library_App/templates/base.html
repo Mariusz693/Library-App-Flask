@@ -29,9 +29,11 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link active">Kategorie</a>
                     </li>
+                    {% if current_user.is_authenticated and current_user.status.name == admin %}
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">Użytkownicy</a>
+                        <a href="{{ url_for('auth.users') }}" class="nav-link active">Użytkownicy</a>
                     </li>
+                    {% endif %}
                 </ul>
                 <div class="d-flex justify-content-end navbar-nav">
                     {% if current_user.is_authenticated %}

@@ -12,6 +12,15 @@ from . import login_manager
 auth = Blueprint('auth', __name__)
 
 
+@auth.context_processor
+def context_data():
+
+    return dict(
+        admin=UserType.Admin.name,
+        client=UserType.Client.name,
+    )
+
+
 @login_manager.user_loader
 def load_user(user_id):
 
@@ -28,6 +37,31 @@ def unauthorized():
     flash('Zaloguj się aby wejść na tą stronę', 'danger')
 
     return redirect(url_for('auth.user_login') + f'?next={request.path}')
+
+
+def access_decorate(func):
+
+    def wrapper_func(*args, **kwargs):
+        
+        if current_user.status != UserType.Admin:
+            
+            return redirect(url_for('auth.wrong_access'))
+        
+        return func(*args, **kwargs)
+    
+    wrapper_func.__name__ = func.__name__
+    
+    return wrapper_func
+
+
+@auth.route('/wrong_access')
+def wrong_access():
+
+    flash('Brak uprawnień administratora !!!', 'danger')
+
+    return render_template(
+        template_name_or_list='wrong_access.html'
+    )
 
 
 @auth.route('/user_login', methods=['GET', 'POST'])
@@ -209,4 +243,104 @@ def user_delete():
         object_type='Użytkownik',
         object=current_user,
         back_link=url_for('auth.user_profile')
+    )
+
+
+@auth.route('/users')
+@login_required
+@access_decorate
+def users():
+
+    search = request.args.get('search')
+    admin = request.args.get('admin')
+    
+    if search:
+        users_list = User.query.filter(
+            User.last_name.ilike(f'{search}%')
+        ).order_by(User.last_name.asc(), User.first_name.asc()).all()
+        print(users_list)
+    
+    elif admin == 'True':
+        users_list = User.query.filter_by(
+            status=UserType.Admin.name
+        ).order_by(User.last_name.asc(), User.first_name.asc()).all()
+    
+    else:
+        users_list = User.query.order_by(
+            User.last_name.asc(), User.first_name.asc()
+        ).all()
+    
+    return render_template(
+        template_name_or_list='users.html',
+        users_list=users_list,
+    )
+
+
+@auth.route('/user_details/<int:user_id>')
+@login_required
+@access_decorate
+def user_details(user_id):
+
+    user = User.query.get_or_404(user_id)
+    returned = request.args.get('returned')
+    
+    if returned == 'True':
+        book_borrowed = BooksUsers.query.filter(
+            BooksUsers.user==user, BooksUsers.date_of_returned!=None
+        ).order_by(
+            BooksUsers.date_of_returned.desc(),
+            BooksUsers.date_of_borrowed.desc()
+        ).all()
+
+    else:
+        book_borrowed = BooksUsers.query.filter(
+            BooksUsers.user==user, BooksUsers.date_of_returned==None
+        ).order_by(
+            BooksUsers.date_of_borrowed.desc()
+        ).all()
+
+    return render_template(
+        template_name_or_list='user_details.html',
+        user=user,
+        book_borrowed=book_borrowed,
+    )
+
+
+@auth.route('/user_status/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def user_status(user_id):
+
+    user = User.query.get_or_404(user_id)
+
+    if user.status == UserType.Admin:
+        status = UserType.Client
+    
+    else:
+        status = UserType.Admin
+    
+    if request.method == 'POST':
+        
+        if status == UserType.Admin:
+            user.status = UserType.Admin.name
+            db.session.commit()
+            flash('Użytkownik otrzymał status Administratora', 'success')
+
+        if status == UserType.Client:
+            admin_count = User.query.filter_by(status=UserType.Admin.name).count()
+            
+            if admin_count < 2:
+                flash('Jedyny administrator, nie można zmienić', 'danger')
+
+            else:
+                user.status = UserType.Client.name
+                db.session.commit()
+                flash('Użytkownik utracił status Administratora', 'success')
+
+        return redirect(url_for('auth.user_details', user_id=user.id))
+
+    return render_template(
+        template_name_or_list='user_status.html',
+        user=user,
+        status=status
     )
