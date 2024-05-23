@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_flash %}
+{% block title %} Szczegóły profilu {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Mój profil</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <h5>{{ current_user.status.value }}</h5>
+                </div>
+            </div>
+            {{ render_flash(get_flashed_messages(with_categories=true)) }}
+            <div class="row my-row">
+                <div class="col-xl-10 col-lg-10 col-md-9 col-sm-9 col-8">
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Imię:</div>
+                        <div class="col-8">{{ current_user.first_name }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Nazwisko:</div>
+                        <div class="col-8">{{ current_user.last_name }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Adres email:</div>
+                        <div class="col-8">{{ current_user.email }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Numer telefonu:</div>
+                        <div class="col-8">
+                            {% if current_user.phone_number %}
+                            (+48) {{ current_user.phone_number }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Data rejestracji:</div>
+                        <div class="col-8">
+                            {{ current_user.date_of_created.strftime('%d.%m.%Y, godz. %H:%M:%S') }}
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Ostatnie logowanie:</div>
+                        <div class="col-8">
+                            {% if current_user.date_of_last_login %} 
+                            {{ current_user.date_of_last_login.strftime('%d.%m.%Y, godz. %H:%M:%S') }} 
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-3 col-4">
+                    <img class="rounded mx-auto d-block img-thumbnail" 
+                    src="{{ url_for('static', filename='images/user_profile.jpg') }}" alt="User profile photo">
+                </div>
+            </div>
+            {% if request.args.returned == 'True' %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Moja Biblioteka</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.user_profile') }}">Aktualnie&nbsp;&#10145;</a>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-5">Tytuł</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                                <th class="col-3 text-center">Data</br>Zwrotu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-5">
+                                    <a href="#">
+                                        {{ item.book }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_returned.strftime('%d.%m.%Y') }} 
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>                     
+            </div>
+            {% else %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Moja Biblioteka</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('auth.user_profile') }}?returned=True">Zwrócone&nbsp;&#10145;</a>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-8">Tytuł</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-8">
+                                    <a href="#">
+                                        {{ item.book }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>                     
+            </div>
+            {% endif %}
+        </div>                
+    </div>
+{% endblock content %}

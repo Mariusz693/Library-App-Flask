@@ -34,7 +34,25 @@
                     </li>
                 </ul>
                 <div class="d-flex justify-content-end navbar-nav">
-                    <a href="#" class="nav-link active">Zaloguj</a>
+                    {% if current_user.is_authenticated %}
+                    <div class="nav-item dropdown my-dropdown">
+                        <a href="#" class="nav-link dropdown-toggle active" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ current_user }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a href="{{ url_for('auth.user_profile') }}" class="dropdown-item">Profil</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('auth.user_update') }}" class="dropdown-item">Edytuj</a>
+                            <a href="{{ url_for('auth.user_password') }}" class="dropdown-item">Hasło</a>
+                            <a href="{{ url_for('auth.user_delete') }}" class="dropdown-item">Usuń</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('auth.user_logout') }}" class="dropdown-item">Wyloguj</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('auth.user_login') }}" class="nav-link active">Zaloguj</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

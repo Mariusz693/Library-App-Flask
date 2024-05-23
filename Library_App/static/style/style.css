@@ -32,3 +32,66 @@ div.my-row {
 p.my-text {
     text-align: justify;
 }
+
+div.my-dropdown {
+    min-width: 155px;
+    text-align: right;
+}
+
+div.my-row-header {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+div.my-row-header a {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+div.my-row-input label {
+    font-weight: bold;
+}
+
+div.my-row-input li {
+    color: red;
+    margin-left: -15px;
+}
+
+div.my-row-button {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.my-row-button input {
+    margin-left: 10px;
+}
+
+div.my-row-alert {
+    margin-left: 1.5px;
+    margin-right: 1.5px;
+    text-align: center;
+}
+
+div.my-row-alert button {
+    height: 25px;
+    width: 50px;
+    line-height: 12.5px;
+}
+
+div.my-text-bold {
+    font-weight: bold;
+}
+
+div.my-text-size {
+    font-size: 1.25rem;
+}
+
+table.my-table td {
+    line-height: 35px;
+}
+
+table.my-table a {
+    text-decoration: none;
+    font-weight: bold;
+}

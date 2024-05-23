@@ -1,0 +1,24 @@
+{% macro render_field(field) %}
+    {{ field.label(class="label-size col-form-label") }}
+    {{ field(class="form-control") }}
+    {% if field.errors %}
+    <ul>
+        {% for error in field.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_flash(flashed_messages) %}
+    {% for category, message in flashed_messages %}
+    {% if loop.last %}
+    <div class="row my-row-alert">
+        <div class="col alert alert-{{ category }}" role="alert">
+            {{ message }}
+            <button type="button" class="btn btn-{{ category }}" data-dismiss="alert">X</button>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
