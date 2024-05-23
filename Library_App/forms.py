@@ -130,3 +130,15 @@ class UserPasswordForm(FlaskForm):
         ]
     )
     submit = SubmitField('Zapisz')
+
+
+class CategoryForm(FlaskForm):
+
+    name = StringField(
+        label='Kategoria: *',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            Length(max=256)
+        ]
+    )
+    submit = SubmitField('Zapisz')

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %} Kategoria {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Kategoria - {{ category }}</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('main.categories') }}">&#11013;&nbsp;Kategorie</a>
+                    {% if current_user.is_authenticated and current_user.status.name == admin %}
+                    <a href="{{ url_for('main.category_delete', category_id=category.id) }}"
+                        class="text-danger">Usuń&nbsp;&#10006;</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-8">Tytuł</th>
+                                <th class="col-3 text-center">Woluminy</br>(dostępne)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in category.books %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-8">
+                                    <a href="#">
+                                        {{ book }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ book.copies }} ({{ book.copies - book.copies_borrowed }})
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
