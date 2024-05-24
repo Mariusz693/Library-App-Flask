@@ -1,10 +1,8 @@
+from datetime import date
 from wtforms.validators import ValidationError
 
 
 class PasswordValidator:
-
-    def __init__(self, message=None):
-        self.message = message
 
     def __call__(self, form, field):
         password = field.data
@@ -43,5 +41,43 @@ class PasswordValidator:
         
         if contains_special_char is False:
             raise ValidationError(f'Hasło musi zawierać znak specjalny {special_char}!')
+        
+        return
+
+
+class DateRangeValidator:
+
+    def __init__(self):
+        self.max = date.today()
+        self.field_flags = {}
+        if self.max is not None:
+            self.field_flags['max'] = self.max
+        
+    def __call__(self, form, field):
+        data = field.data
+        
+        if data > self.max:
+
+            raise ValidationError('Data nie może być większa niż dziś')
+
+        return
+
+
+class EqualDateToValidator:
+
+    def __init__(self, field_name):
+        self.field_name = field_name
+
+    def __call__(self, form, field):
+        
+        try:
+            other = form[self.field_name]
+        except KeyError:
+
+            raise ValidationError('Błąd nazwy pola')
+        
+        if field.data <= other.data:
+
+            raise ValidationError('Data musi być większa niż urodzenia')
         
         return

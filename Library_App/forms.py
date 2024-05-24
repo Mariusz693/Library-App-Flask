@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, DateField, \
+    TextAreaField
 from wtforms.validators import DataRequired, Email, Optional, Length, Regexp, \
     EqualTo
-from .validators import PasswordValidator
+from .validators import PasswordValidator, DateRangeValidator, EqualDateToValidator
 
 
 class UserLoginForm(FlaskForm):
@@ -140,5 +141,37 @@ class CategoryForm(FlaskForm):
             DataRequired(message='Pole obowiązkowe!'),
             Length(max=256)
         ]
+    )
+    submit = SubmitField('Zapisz')
+
+
+class AuthorForm(FlaskForm):
+
+    name = StringField(
+        label='Imię i Nazwisko (Pseudonim): *',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            Length(max=256)
+        ]
+    )
+    date_of_birth = DateField(
+        label='Data urodzenia: *',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            DateRangeValidator()
+        ]
+    )
+    date_of_death = DateField(
+        label='Data śmierci:',
+        validators=[
+            Optional(),
+            DateRangeValidator(),
+            EqualDateToValidator(field_name='date_of_birth')
+        ]
+    )
+    biography = TextAreaField(
+        label='Biografia:',
+        render_kw={'rows':'8'},
+        validators=[Optional()]
     )
     submit = SubmitField('Zapisz')
