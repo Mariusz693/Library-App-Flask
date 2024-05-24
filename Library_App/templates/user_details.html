@@ -137,7 +137,7 @@
                                     {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
                                 </td>
                                 <td class="col-3 text-center">
-                                    <a href="#">
+                                    <a href="{{ url_for('main.book_return', book_user_id=item.id) }}?next={{request.path}}">
                                         Dodaj&nbsp;&#10145;
                                     </a>
                                 </td>

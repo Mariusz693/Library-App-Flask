@@ -46,7 +46,7 @@
                             {{ book.copies - book.copies_borrowed }}
                             {% if current_user.is_authenticated and current_user.status.name == admin %}
                             {% if book.copies - book.copies_borrowed %}
-                            <a href="#"
+                            <a href="{{ url_for('main.book_borrow', book_id=book.id) }}"
                                 class="my-link-margin">Wypożyczenie&nbsp;&#10145;</a>
                             {% endif %}
                             {% endif %}
@@ -75,7 +75,7 @@
                     <h5>Woluminy</h5>
                 </div>
                 <div class="col d-flex justify-content-end">
-                    <a href="#">
+                    <a href="{{ url_for('main.book_borrows', book_id=book.id) }}">
                         Zwrócone&nbsp;&#10145;
                     </a>
                 </div>
@@ -104,7 +104,7 @@
                                     {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
                                 </td>
                                 <td class="col-3 text-center">
-                                    <a href="#">
+                                    <a href="{{ url_for('main.book_return', book_user_id=item.id) }}">
                                         Dodaj&nbsp;&#10145;
                                     </a>
                                 </td>

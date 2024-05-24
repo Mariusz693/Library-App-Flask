@@ -1,8 +1,9 @@
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, \
     flash, make_response
 from flask_login import login_required
-from .models import UserType, db, Category, Author, Book, BooksUsers
-from .forms import CategoryForm, AuthorForm, BookForm
+from .models import UserType, db, Category, Author, Book, BooksUsers, User
+from .forms import CategoryForm, AuthorForm, BookForm, BorrowForm
 from .auth import access_decorate
 
 
@@ -15,6 +16,7 @@ def context_data():
     return dict(
         admin=UserType.Admin.name,
         client=UserType.Client.name,
+        today=date.today()
     )
 
 
@@ -452,4 +454,97 @@ def book_delete(book_id):
         object_type='Książka',
         object=book,
         back_link=url_for('main.book_details', book_id=book.id)
+    )
+
+
+@main.route('/book_borrows/<int:book_id>')
+@login_required
+@access_decorate
+def book_borrows(book_id):
+
+    search = request.args.get('search')
+    book = Book.query.get_or_404(book_id)
+    book_borrowed = BooksUsers.query.filter(
+        BooksUsers.book==book, BooksUsers.date_of_returned!=None
+    ).order_by(
+        BooksUsers.date_of_returned.desc(),
+        BooksUsers.date_of_borrowed.desc()
+    ).all()
+    
+    if search:
+        users = User.query.filter(
+            User.last_name.ilike(f'{search}%')
+        ).all()
+        book_borrowed = [item for item in book_borrowed if item.user in users]
+
+    return render_template(
+        template_name_or_list='book_borrows.html',
+        book=book,
+        book_borrowed=book_borrowed
+    )
+
+
+@main.route('/book_borrow/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def book_borrow(book_id):
+    
+    book = Book.query.get_or_404(book_id)
+    form = BorrowForm()
+    
+    if form.validate_on_submit():
+        user = form.user.data
+        book_user = BooksUsers.query.filter(
+            BooksUsers.book==book,
+            BooksUsers.user==user,
+            BooksUsers.date_of_returned==None
+        ).first()
+        
+        if book.copies_borrowed >= book.copies:
+            flash('Wszystie woluminy książki już wypożyczone', 'danger')
+
+        elif book_user:
+            flash('Książka już wypożyczona przez użytkownika', 'danger')
+
+        else:
+            book_user = BooksUsers(
+                book=book,
+                user=user,
+                date_of_borrowed=date.today()
+            )
+            db.session.add(book_user)
+            book.copies_borrowed += 1
+            db.session.commit()
+            flash('Książka wypożyczona przez użytkownika', 'success')
+
+        return redirect(url_for('main.book_details', book_id=book.id))
+
+    return render_template(
+        template_name_or_list='book_borrow.html',
+        book=book,
+        form=form
+    )
+
+
+@main.route('/book_return/<int:book_user_id>', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def book_return(book_user_id):
+    
+    book_user = BooksUsers.query.get_or_404(book_user_id)
+    next_page = request.args.get('next')
+    back_link = next_page or url_for('main.book_details', book_id=book_user.book.id)
+
+    if request.method == 'POST':
+        book_user.date_of_returned = date.today()
+        book_user.book.copies_borrowed -= 1
+        db.session.commit()
+        flash('Książka została zwrócona przez użytkownika', 'success')
+
+        return redirect(back_link)
+
+    return render_template(
+        template_name_or_list='book_return.html',
+        book_user=book_user,
+        back_link=back_link
     )

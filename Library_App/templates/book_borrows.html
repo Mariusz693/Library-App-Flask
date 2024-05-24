@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} Historia wypożyczeń {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Książka - {{ book }}</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <form method="GET" class="my-form-search">
+                        <input type="search" name="search" placeholder="Szukaj"
+                            {% if request.args.search %} value="{{ request.args.search }}" {% endif %}>
+                        <button type="submit">
+                            <img src="{{ url_for('static', filename='images/search.png') }}" alt="Szukaj">
+                        </button>
+                        <a href="{{ url_for('main.book_details', book_id=book.id) }}">&#11013;&nbsp;Powrót</a>
+                    </form>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-5">Użytkownik</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                                <th class="col-3 text-center">Data</br>Zwrotu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-5">
+                                    <a href="{{ url_for('auth.user_details', user_id=item.user.id) }}">
+                                        {{ item.user }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_returned.strftime('%d.%m.%Y') }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>                
+    </div>
+{% endblock content %}

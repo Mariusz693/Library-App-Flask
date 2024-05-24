@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Email, Optional, Length, Regexp, \
     EqualTo, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectField, QueryCheckboxField
 from .validators import PasswordValidator, DateRangeValidator, EqualDateToValidator
-from .models import Author, Category
+from .models import Author, Category, User
 
 
 class UserLoginForm(FlaskForm):
@@ -230,5 +230,21 @@ class BookForm(FlaskForm):
         label='Kategorie:',
         query_factory=query_choices_categories,
         validators=[Optional()]
+    )
+    submit = SubmitField('Zapisz')
+
+
+class BorrowForm(FlaskForm):
+
+    def query_choices_users():
+
+        return User.query.order_by(User.last_name).all()
+    
+    user = QuerySelectField(
+        label='Wybierz użytkownika: *',
+        query_factory=query_choices_users,
+        allow_blank=True,
+        blank_text='Wybierz',
+        validators=[DataRequired(message='Pole obowiązkowe!')]
     )
     submit = SubmitField('Zapisz')
