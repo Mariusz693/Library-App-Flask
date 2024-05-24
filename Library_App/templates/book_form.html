@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_field %}
+{% block title %} 
+{% if book %}Aktualizacja profilu{% else %}Dodaj profil książki{% endif %}
+{% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>
+                        {% if book %}Aktualizacja profilu{% else %}Dodaj profil książki{% endif %}
+                    </h5>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col-xl-8 col-lg-9 col-md-10 col-sm-11 col-12">
+                    <form method="POST">
+                        {{ form.csrf_token }}
+                        <div class="form-group row my-row-input">
+                            <div class="col">
+                                {{ render_field(form.title) }}
+                            </div>
+                        </div>
+                        <div class="form-group row my-row-input">
+                            <div class="col">
+                                {{ render_field(form.isbn) }}
+                            </div>
+                            <div class="col">
+                                {{ render_field(form.copies) }}
+                            </div>
+                        </div>
+                        <div class="form-group row my-row-input">
+                            <div class="col">
+                                <div class="row my-row-button-add">
+                                    <div class="col">
+                                        {{ form.author.label(class="label-size col-form-label") }}
+                                    </div>
+                                    <div class="col d-flex justify-content-end mb-2">
+                                        <button type="button" data-toggle="modal" data-target="#modal-create-author" 
+                                            id="button-create-author" class="btn btn-success btn-sm">Dodaj</button>
+                                    </div>
+                                </div>
+                                {{ form.author(class="form-control") }}
+                                {% if form.author.errors %}
+                                <ul>
+                                    {% for error in form.author.errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group row my-row-checkbox">
+                            <div class="col">
+                                <div class="row my-row-button-add">
+                                    <div class="col">
+                                        {{ form.categories.label(class="label-size col-form-label") }}
+                                    </div>
+                                    <div class="col d-flex justify-content-end mb-2">
+                                        <button type="button" data-toggle="modal" data-target="#modal-create-category" 
+                                            id="button-create-category" class="btn btn-success btn-sm">Dodaj</button>
+                                    </div>
+                                </div>
+                                {{ form.categories(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="form-group row my-row-input">
+                            <div class="col">
+                                {{ render_field(form.description) }}
+                            </div>
+                        </div>
+                        <div class="form-group row my-row-button">
+                            <div class="col d-flex justify-content-end">
+                                {% if book %}
+                                <a href="{{ url_for('main.book_details', book_id=book.id) }}"
+                                    class="btn btn-danger">Anuluj</a>
+                                {% else %}
+                                <a href="{{ url_for('main.books') }}" class="btn btn-danger">Anuluj</a>
+                                {% endif %}
+                                {{ form.submit(class="btn btn-success") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col-xl-8 col-lg-9 col-md-10 col-sm-11 col-12">   
+                    <img src="{{ url_for('static', filename='images/book_form.jpg') }}"
+                    class="rounded mx-auto d-block img-thumbnail" alt="Book form photo">
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal-create-author" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="form-create-author" data-path="{{ url_for('main.book_create_author') }}">
+                        {{ form_author.csrf_token }}
+                        <div class="modal-header">
+                            <h5>Dodaj profil autora</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row my-row-input">
+                                <div class="col">
+                                    {{ render_field(form_author.name) }}
+                                </div>
+                            </div>
+                            <div class="form-group row my-row-input">
+                                <div class="col">
+                                    {{ render_field(form_author.date_of_birth) }}
+                                </div>
+                                <div class="col">
+                                    {{ render_field(form_author.date_of_death) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input class="btn btn-danger" data-dismiss="modal" id="close"
+                                name="close" type="button" value="Anuluj">
+                            {{ form_author.submit(class="btn btn-success") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal-create-category" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="form-create-category" data-path="{{ url_for('main.book_create_category') }}">
+                        {{ form_category.csrf_token }}
+                        <div class="modal-header">
+                            <h5>Dodaj kategorię</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row my-row-input">
+                                <div class="col">
+                                    {{ render_field(form_category.name) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input class="btn btn-danger" data-dismiss="modal" id="close"
+                                name="close" type="button" value="Anuluj">
+                            {{ form_category.submit(class="btn btn-success") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -12,7 +12,7 @@
                 </div>
                 <div class="col d-flex justify-content-end">
                     <form method="GET" class="my-form-search">
-                        <input class="" type="search" name="search" placeholder="Szukaj"
+                        <input type="search" name="search" placeholder="Szukaj"
                             {% if request.args.search %} value="{{ request.args.search }}" {% endif %}>
                         <button type="submit">
                             <img src="{{ url_for('static', filename='images/search.png') }}" alt="Szukaj">

@@ -125,3 +125,23 @@ a.my-link-margin {
     font-weight: bold;
     margin-left: 15px;
 }
+
+a.my-link {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+div.my-row-button-add {
+    margin-top: 10px;
+}
+
+div.my-row-checkbox div div div label {
+    font-weight: bold;
+}
+
+div.my-row-checkbox li {
+    list-style: none;
+    display: inline-block;
+    width: 50%;
+    margin: 2.5px 0px 2.5px 0px;
+}

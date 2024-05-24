@@ -1,20 +1,29 @@
 {% extends "base.html" %}
-{% block title %} Kategoria {% endblock %}
+{% from "_helpers.html" import render_flash %}
+{% block title %} Książki {% endblock %}
 {% block content %}
     <div class="my-container">
         <div class="mt-4 ml-4 mr-4">
             <div class="row my-row-header">
                 <div class="col">
-                    <h5>Kategoria - {{ category }}</h5>
+                    <h5>
+                        Książki{% if request.args.search %} - "{{ request.args.search }}"{% endif %}
+                    </h5>
                 </div>
                 <div class="col d-flex justify-content-end">
-                    <a href="{{ url_for('main.categories') }}">&#11013;&nbsp;Kategorie</a>
-                    {% if current_user.is_authenticated and current_user.status.name == admin %}
-                    <a href="{{ url_for('main.category_delete', category_id=category.id) }}"
-                        class="text-danger">Usuń&nbsp;&#10006;</a>
-                    {% endif %}
+                    <form method="GET" class="my-form-search">
+                        <input type="search" name="search" placeholder="Szukaj"
+                            {% if request.args.search %} value="{{ request.args.search }}" {% endif %}>
+                        <button type="submit">
+                            <img src="{{ url_for('static', filename='images/search.png') }}" alt="Szukaj">
+                        </button>
+                        {% if current_user.is_authenticated and current_user.status.name == admin %}
+                        <a href="{{ url_for('main.book_create') }}">Dodaj&nbsp;&#10010;</a>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
+            {{ render_flash(get_flashed_messages(with_categories=true)) }}
             <div class="row my-row">
                 <div class="col">
                     <table class="table my-table">
@@ -26,12 +35,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for book in category.books %}
+                            {% for book in books_list %}
                             <tr>
                                 <td class="col-1">{{ loop.index }}</td>
                                 <td class="col-8">
                                     <a href="{{ url_for('main.book_details', book_id=book.id) }}">
-                                        {{ book }}
+                                        {{ book.title }}
                                     </a>
                                 </td>
                                 <td class="col-3 text-center">
@@ -43,6 +52,6 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </div>          
     </div>
 {% endblock content %}

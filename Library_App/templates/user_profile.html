@@ -80,7 +80,7 @@
                             <tr>
                                 <td class="col-1">{{ loop.index }}</td>
                                 <td class="col-5">
-                                    <a href="#">
+                                    <a href="{{ url_for('main.book_details', book_id=item.book.id) }}">
                                         {{ item.book }}
                                     </a>
                                 </td>
@@ -120,7 +120,7 @@
                             <tr>
                                 <td class="col-1">{{ loop.index }}</td>
                                 <td class="col-8">
-                                    <a href="#">
+                                    <a href="{{ url_for('main.book_details', book_id=item.book.id) }}">
                                         {{ item.book }}
                                     </a>
                                 </td>

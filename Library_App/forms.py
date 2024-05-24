@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, DateField, \
-    TextAreaField
+    TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Email, Optional, Length, Regexp, \
-    EqualTo
+    EqualTo, NumberRange
+from wtforms_sqlalchemy.fields import QuerySelectField, QueryCheckboxField
 from .validators import PasswordValidator, DateRangeValidator, EqualDateToValidator
+from .models import Author, Category
 
 
 class UserLoginForm(FlaskForm):
@@ -172,6 +174,61 @@ class AuthorForm(FlaskForm):
     biography = TextAreaField(
         label='Biografia:',
         render_kw={'rows':'8'},
+        validators=[Optional()]
+    )
+    submit = SubmitField('Zapisz')
+
+
+class BookForm(FlaskForm):
+
+    def query_choices_authors():
+
+        return Author.query.order_by(Author.name).all()
+        
+    def query_choices_categories():
+
+        return Category.query.order_by(Category.name).all()
+    
+    title = StringField(
+        label='Tytuł: *',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            Length(max=256)
+        ]
+    )
+    isbn = StringField(
+        label='ISBN: *',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            Length(min=13, max=13),
+            Regexp('^[0-9]*$', message='Numer ISBN może składać się tylko z cyfr!')
+        ]
+    )
+    description = TextAreaField(
+        label='Opis:',
+        render_kw={'rows':'8'},
+        validators=[Optional()]
+    )
+    copies = IntegerField(
+        label='Woluminy: *',
+        default=1,
+        validators=[
+            DataRequired(message='Pole obowiązkowe!'),
+            NumberRange(min=1, message='Wymagany minimalnie jeden wolumin!')
+        ]
+    )
+    author = QuerySelectField(
+        label='Autor: *',
+        query_factory=query_choices_authors,
+        allow_blank=True,
+        blank_text='Wybierz',
+        validators=[
+            DataRequired(message='Pole obowiązkowe!')
+        ]
+    )
+    categories = QueryCheckboxField(
+        label='Kategorie:',
+        query_factory=query_choices_categories,
         validators=[Optional()]
     )
     submit = SubmitField('Zapisz')

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_flash %}
+{% block title %} Profil Książki {% endblock %}
+{% block content %}
+    <div class="my-container">
+        <div class="mt-4 ml-4 mr-4">
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Profil Książki</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{{ url_for('main.books') }}">&#11013;&nbsp;Książki</a>
+                    {% if current_user.is_authenticated and current_user.status.name == admin %}
+                    <a href="{{ url_for('main.book_update', book_id=book.id) }}"
+                        class="text-success">Edytuj&nbsp;&#10004;</a>
+                    <a href="{{ url_for('main.book_delete', book_id=book.id) }}"
+                        class="text-danger">Usuń&nbsp;&#10006;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {{ render_flash(get_flashed_messages(with_categories=true)) }}
+            <div class="row my-row">
+                <div class="col-xl-10 col-lg-10 col-md-9 col-sm-9 col-8">                        
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Tytuł:</div>
+                        <div class="col-8">{{ book.title }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Numer ISBN:</div>
+                        <div class="col-8">{{ book.isbn }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Autor:</div>
+                        <div class="col-8">
+                            <a href="{{ url_for('main.author_details', author_id=book.author.id) }}"
+                                class="my-link">{{ book.author }}</a>
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Woluminy:</div>
+                        <div class="col-8">{{ book.copies }}</div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Dostępne:</div>
+                        <div class="col-8">
+                            {{ book.copies - book.copies_borrowed }}
+                            {% if current_user.is_authenticated and current_user.status.name == admin %}
+                            {% if book.copies - book.copies_borrowed %}
+                            <a href="#"
+                                class="my-link-margin">Wypożyczenie&nbsp;&#10145;</a>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-row">
+                        <div class="col-4 my-text-bold">Kategoria:</div>
+                        <div class="col-8">{{ book.categories|join(", ") }}</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-3 col-4">
+                    <img src="{{ url_for('static', filename='images/book_details.jpg') }}" 
+                    class="rounded mx-auto d-block img-thumbnail" alt="Book profile photo">
+                </div>
+            </div>
+            {% if book.description %}
+            <div class="row my-row">
+                <div class="col">
+                    <p class="my-text">{{ book.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.status.name == admin %}
+            <div class="row my-row-header">
+                <div class="col">
+                    <h5>Woluminy</h5>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="#">
+                        Zwrócone&nbsp;&#10145;
+                    </a>
+                </div>
+            </div>
+            <div class="row my-row">
+                <div class="col">
+                    <table class="table my-table">
+                        <tbody>
+                            <tr>
+                                <th class="col-1">Lp.</th>
+                                <th class="col-5">Użytkownik</th>
+                                <th class="col-3 text-center">Data</br>Wypożyczenia</th>
+                                <th class="col-3 text-center">Data</br>Zwrotu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in book_borrowed %}
+                            <tr>
+                                <td class="col-1">{{ loop.index }}</td>
+                                <td class="col-5">
+                                    <a href="{{ url_for('auth.user_details', user_id=item.user.id) }}">
+                                        {{ item.user }}
+                                    </a>
+                                </td>
+                                <td class="col-3 text-center">
+                                    {{ item.date_of_borrowed.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td class="col-3 text-center">
+                                    <a href="#">
+                                        Dodaj&nbsp;&#10145;
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>                
+    </div>
+{% endblock content %}

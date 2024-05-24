@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, \
-    flash
+    flash, make_response
 from flask_login import login_required
-from .models import UserType, db, Category, Author
-from .forms import CategoryForm, AuthorForm
+from .models import UserType, db, Category, Author, Book, BooksUsers
+from .forms import CategoryForm, AuthorForm, BookForm
 from .auth import access_decorate
 
 
@@ -102,12 +102,14 @@ def category_delete(category_id):
 def authors():
 
     search = request.args.get('search')
-    authors_list = Author.query.order_by(Author.name).all()
-
+    
     if search:
         authors_list = Author.query.filter(
             Author.name.ilike(f'{search}%')
         ).order_by(Author.name).all()
+    
+    else:
+        authors_list = Author.query.order_by(Author.name).all()
 
     return render_template(
         template_name_or_list='authors.html',
@@ -219,4 +221,235 @@ def author_delete(author_id):
         object_type='Autor',
         object=author,
         back_link=url_for('main.author_details', author_id=author.id)
+    )
+
+
+@main.route('/books')
+def books():
+
+    search = request.args.get('search')
+
+    if search:
+        books_list = Book.query.filter(
+            Book.title.ilike(f'{search}%')
+        ).order_by(Book.title).all()
+    
+    else:
+        books_list = Book.query.order_by(Book.title).all()
+
+
+    return render_template(
+        template_name_or_list='books.html',
+        books_list=books_list
+    )
+
+
+@main.route('/book_details/<int:book_id>')
+def book_details(book_id):
+    
+    book = Book.query.get_or_404(book_id)
+    book_borrowed = BooksUsers.query.filter_by(
+        book=book, date_of_returned=None
+    ).order_by(
+        BooksUsers.date_of_borrowed.desc()
+    ).all()
+    
+    return render_template(
+        template_name_or_list='book_details.html',
+        book=book,
+        book_borrowed=book_borrowed
+    )
+
+
+@main.route('/book_create', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def book_create():
+    
+    form = BookForm()
+
+    if form.validate_on_submit():
+        book = Book.query.filter_by(isbn=form.isbn.data).first()
+
+        if book is None:
+            book = Book(
+                isbn=form.isbn.data,
+                title=form.title.data,
+                description=form.description.data,
+                copies=form.copies.data,
+                author=form.author.data
+            )
+            book.categories=form.categories.data
+            db.session.add(book)
+            db.session.commit()
+            flash('Profil książki został utworzony', 'success')
+
+        else:
+            flash('Numer ISBN już istnieje w bazie', 'danger')
+
+        return redirect(url_for('main.book_details', book_id=book.id))
+
+    return render_template(
+        template_name_or_list='book_form.html',
+        form=form,
+        form_author=AuthorForm(),
+        form_category=CategoryForm()
+    )
+
+
+@main.route('/book_create_author', methods=['POST'])
+@login_required
+@access_decorate
+def book_create_author():
+    
+    data = request.get_json(force=True)
+    form = AuthorForm(data=data)
+        
+    if form.validate():
+        author = Author.query.filter_by(name=form.name.data).first()
+
+        if author is None:
+            author = Author(
+                name=form.name.data,
+                date_of_birth=form.date_of_birth.data,
+                date_of_death=form.date_of_death.data
+            )
+            db.session.add(author)
+            db.session.commit()
+            answer = {
+                'status': 'create',
+                'author': {
+                    'name': author.name,
+                    'id': str(author.id)
+                }
+            }
+        
+        else:
+            answer = {
+                'status': 'exist',
+                'id': str(author.id)
+            }
+
+    else:
+        answer = {
+            'status': 'error',
+            'errors': {
+                'name': form.name.errors,
+                'date_of_birth': form.date_of_birth.errors,
+                'date_of_death': form.date_of_death.errors
+            }
+        }
+        
+    return make_response(answer, 200)
+
+
+@main.route('/book_create_category', methods=['POST'])
+@login_required
+@access_decorate
+def book_create_category():
+    
+    data = request.get_json(force=True)
+    form = CategoryForm(data=data)
+    
+    if form.validate():
+        category = Category.query.filter_by(name=form.name.data).first()
+
+        if category is None:
+            category = Category(
+                name=form.name.data,
+            )
+            db.session.add(category)
+            db.session.commit()
+            answer = {
+                'status': 'create',
+                'category': {
+                    'name': category.name,
+                    'id': str(category.id)
+                }
+            }
+        
+        else:
+            answer = {
+                'status': 'exist',
+                'id': str(category.id)
+            }
+    
+    else:
+        answer = {
+            'status': 'error',
+            'errors': {
+                'name': form.name.errors
+            }
+        }
+        
+    return make_response(answer, 200)
+
+
+@main.route('/book_update/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def book_update(book_id):
+    
+    book = Book.query.get_or_404(book_id)
+    form = BookForm(obj=book)
+
+    if form.validate_on_submit():
+        book_check = Book.query.filter_by(isbn=form.isbn.data).first()
+
+        if book_check and book_check != book:
+            book = book_check
+            flash('Numer ISBN już istnieje w bazie', 'danger')
+        
+        elif form.copies.data < book.copies_borrowed:
+            flash('Ilość woluminów na wypożyczeniu większa niż podana', 'danger')
+
+        else:
+            book.isbn=form.isbn.data, 
+            book.title=form.title.data,
+            book.description=form.description.data,
+            book.copies=form.copies.data,
+            book.author=form.author.data
+            book.categories=form.categories.data
+            db.session.commit()
+            flash('Profil książki został zakualizowany', 'success')
+
+        return redirect(url_for('main.book_details', book_id=book.id))
+
+    return render_template(
+        template_name_or_list='book_form.html',
+        form=form,
+        book=book,
+        form_author=AuthorForm(),
+        form_category=CategoryForm()
+    )
+
+
+@main.route('/book_delete/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+@access_decorate
+def book_delete(book_id):
+    
+    book = Book.query.get_or_404(book_id)
+    
+    if request.method == 'POST':
+        
+        if book.copies_borrowed > 0:
+            flash('Woluminy na wypożyczeniu, wymagany ich zwrot', 'danger')
+                
+            return redirect(url_for('main.book_details', book_id=book.id))
+
+        else:
+            db.session.delete(book)
+            db.session.commit()
+            flash('Profil książki został usunięty', 'success')
+        
+            return redirect(url_for('main.books'))
+
+    flash('Historia wypożyczeń książki zostanie usunięta', 'danger')    
+
+    return render_template(
+        template_name_or_list='delete.html',
+        object_type='Książka',
+        object=book,
+        back_link=url_for('main.book_details', book_id=book.id)
     )
